@@ -111,7 +111,7 @@ Set `Database:Provider` to `SqlServer` or `Sqlite`, and set `ConnectionStrings:G
 
 ## Azure App Service
 
-The root `.deployment` file directs Kudu to the deployable API project under `src`.
+The root `.deployment` file directs Oryx to build the deployable API project under `src` and explicitly selects the .NET 10 platform.
 
 Configure the App Service runtime stack for .NET 10. For source ZIP deployments, set `SCM_DO_BUILD_DURING_DEPLOYMENT=true`; pre-published ZIP deployments should leave remote build disabled.
 
