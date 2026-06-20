@@ -2,11 +2,9 @@
 
 set -euo pipefail
 
-repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 deployment_target="${DEPLOYMENT_TARGET:-/home/site/wwwroot}"
 
 oryx build \
   "$repository_root/src/Lod.LlmGateway.Gateway" \
-  --output "$deployment_target" \
-  --platform dotnet \
-  --platform-version 10.0
+  --output "$deployment_target"

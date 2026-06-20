@@ -111,7 +111,7 @@ Set `Database:Provider` to `SqlServer` or `Sqlite`, and set `ConnectionStrings:G
 
 ## Azure App Service
 
-The root `.deployment` file runs `deploy.sh`, which directs Oryx to the deployable API project under `src` and explicitly selects the .NET 10 platform.
+The root `.deployment` file runs `scripts/deploy.sh`, which directs Oryx to the deployable API project under `src`. The deployable project declares `net10.0` directly so Oryx can detect the platform version without evaluating repository-wide MSBuild imports.
 
 Configure the App Service runtime stack for .NET 10. For source ZIP deployments, set `SCM_DO_BUILD_DURING_DEPLOYMENT=true`; pre-published ZIP deployments should leave remote build disabled.
 
