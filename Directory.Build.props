@@ -1,0 +1,15 @@
+<Project>
+
+  <PropertyGroup>
+    <Company>Lod Softworks LLC</Company>
+    <Authors>lod-softworks</Authors>
+    <StartYear>2026</StartYear>
+    <CurrentYear>$([System.DateTime]::Now.ToString("yyyy"))</CurrentYear>
+    <Copyright>Copyright © $(StartYear)-$(CurrentYear) Lod Softworks LLC</Copyright>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+</Project>
