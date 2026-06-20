@@ -7,4 +7,3 @@
 - `src/Lod.LlmGateway.Gateway/appsettings.json`: production-safe configuration shape.
 - `src/Lod.LlmGateway.Gateway/OpenAI/ChatCompletions/`: OpenAI contracts, routing, handlers, and telemetry.
 - `src/Lod.LlmGateway.Gateway.Tests/`: automated tests.
-- `original/`: source snapshot of the former combined gateway and worker project.
