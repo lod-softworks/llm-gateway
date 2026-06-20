@@ -1,2 +1,2 @@
 [config]
-command = oryx build "$DEPLOYMENT_SOURCE/src/Lod.LlmGateway.Gateway" --output "$DEPLOYMENT_TARGET" --platform dotnet --platform-version 10.0
+command = bash deploy.sh
