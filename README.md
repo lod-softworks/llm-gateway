@@ -47,7 +47,7 @@ The development configuration uses SQLite and assumes an LM Studio-compatible Op
 Run tests with:
 
 ```bash
-dotnet test src/Lod.LlmGateway.slnx
+dotnet test Lod.LlmGateway.slnx
 ```
 
 ## Configuration
