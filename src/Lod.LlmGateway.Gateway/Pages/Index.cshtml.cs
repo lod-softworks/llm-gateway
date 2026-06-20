@@ -12,10 +12,10 @@ namespace Lod.LlmGateway.Gateway.Pages;
 public class IndexModel(
     IWebHostEnvironment environment,
     GatewayDbContext dbContext,
-    IOptions<OpenAIChatCompletionOptions> openAiChatCompletionOptions) : PageModel
+    IOptionsMonitor<OpenAIChatCompletionOptions> openAiChatCompletionOptions) : PageModel
 {
     public bool IsDevelopment { get; } = environment.IsDevelopment();
-    public int ConfiguredProviderCount { get; } = openAiChatCompletionOptions.Value.Providers.Count;
+    public int ConfiguredProviderCount { get; } = openAiChatCompletionOptions.CurrentValue.Providers.Count;
     public BranchMetricWindow AllTimeMetrics { get; private set; } = BranchMetricWindow.Empty("All time");
     public BranchMetricWindow Last24HoursMetrics { get; private set; } = BranchMetricWindow.Empty("Last 24");
 

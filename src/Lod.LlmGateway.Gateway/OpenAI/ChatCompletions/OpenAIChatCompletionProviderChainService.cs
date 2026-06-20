@@ -6,11 +6,11 @@ namespace Lod.LlmGateway.Gateway.OpenAI.ChatCompletions;
 
 public sealed class OpenAIChatCompletionProviderChainService(
     ILogger<OpenAIChatCompletionProviderChainService> logger,
-    IOptions<OpenAIChatCompletionOptions> options,
+    IOptionsMonitor<OpenAIChatCompletionOptions> options,
     OpenAIChatCompletionHttpExecutor httpExecutor)
 {
     public IReadOnlyList<OpenAIChatCompletionProvider> BuildMatchingChain(string? requestModel) =>
-        OpenAIChatCompletionProviderMatcher.BuildMatchingChain(requestModel, options.Value.Providers);
+        OpenAIChatCompletionProviderMatcher.BuildMatchingChain(requestModel, options.CurrentValue.Providers);
 
     public async Task<OpenAIChatCompletionNonStreamResult> TryRunChainAsync(
         ChatCompletionRequest request,

@@ -2,13 +2,13 @@ using Microsoft.Extensions.Options;
 
 namespace Lod.LlmGateway.Gateway.Api;
 
-public sealed class ApiKeyAuthorizer(IOptions<ApiKeyOptions> options)
+public sealed class ApiKeyAuthorizer(IOptionsMonitor<ApiKeyOptions> options)
 {
-    public IEnumerable<string> ClientObfuscatedKeys => options.Value.Clients.Values.Select(ObfuscateKey);
+    public IEnumerable<string> ClientObfuscatedKeys => options.CurrentValue.Clients.Values.Select(ObfuscateKey);
 
     public bool IsClientAuthorized(HttpContext httpContext)
     {
-        return options.Value.Clients.Any(kv => IsAuthorized(httpContext, kv.Value));
+        return options.CurrentValue.Clients.Any(kv => IsAuthorized(httpContext, kv.Value));
     }
 
 
@@ -20,7 +20,7 @@ public sealed class ApiKeyAuthorizer(IOptions<ApiKeyOptions> options)
             return null;
         }
 
-        foreach (KeyValuePair<string, string> client in options.Value.Clients)
+        foreach (KeyValuePair<string, string> client in options.CurrentValue.Clients)
         {
             if (string.Equals(client.Value, apiKey, StringComparison.Ordinal))
             {

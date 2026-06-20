@@ -4,12 +4,12 @@ namespace Lod.LlmGateway.Gateway.OpenAI.ChatCompletions;
 
 public sealed class OpenAIModelListProviderService(
     ILogger<OpenAIModelListProviderService> logger,
-    IOptions<OpenAIChatCompletionOptions> options,
+    IOptionsMonitor<OpenAIChatCompletionOptions> options,
     OpenAIModelListHttpExecutor httpExecutor)
 {
     public async Task<OpenAIModelListResponse> ListModelsAsync(CancellationToken cancellationToken)
     {
-        IReadOnlyList<OpenAIChatCompletionProvider> providers = options.Value.Providers;
+        IReadOnlyList<OpenAIChatCompletionProvider> providers = options.CurrentValue.Providers;
         if (providers.Count == 0)
         {
             throw new InvalidOperationException("No OpenAI providers are configured.");
