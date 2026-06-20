@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Lod.LlmGateway.Gateway.Migrations
 {
     /// <inheritdoc />
-    public partial class v1 : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -26,9 +26,8 @@ namespace Lod.LlmGateway.Gateway.Migrations
                     RequestCount = table.Column<int>(type: "int", nullable: false),
                     NonStreamRequestCount = table.Column<int>(type: "int", nullable: false),
                     StreamRequestCount = table.Column<int>(type: "int", nullable: false),
-                    InitialModelRequestCount = table.Column<int>(type: "int", nullable: false),
-                    LocalFallbackModelRequestCount = table.Column<int>(type: "int", nullable: false),
-                    CloudFallbackModelRequestCount = table.Column<int>(type: "int", nullable: false),
+                    PrimaryProviderRequestCount = table.Column<int>(type: "int", nullable: false),
+                    FailoverRequestCount = table.Column<int>(type: "int", nullable: false),
                     FailedRequestCount = table.Column<int>(type: "int", nullable: false),
                     NonStreamPromptTokens = table.Column<int>(type: "int", nullable: false),
                     NonStreamCompletionTokens = table.Column<int>(type: "int", nullable: false),
@@ -65,11 +64,9 @@ namespace Lod.LlmGateway.Gateway.Migrations
                     RequestedModel = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     ResponseModel = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     Provider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
-                    LocalModelFallbackUsed = table.Column<bool>(type: "bit", nullable: false),
-                    CloudFallbackUsed = table.Column<bool>(type: "bit", nullable: false),
-                    CloudFallbackTierName = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
-                    CloudFallbackWinnerIndex = table.Column<int>(type: "int", nullable: true),
-                    CloudFallbackAttemptsJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProviderIndex = table.Column<int>(type: "int", nullable: true),
+                    ProviderAttemptsJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FailoverUsed = table.Column<bool>(type: "bit", nullable: false),
                     HttpStatusCode = table.Column<int>(type: "int", nullable: false),
                     Error = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },

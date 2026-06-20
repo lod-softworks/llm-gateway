@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lod.LlmGateway.Gateway.Migrations
 {
     [DbContext(typeof(GatewayDbContext))]
-    [Migration("20260607084249_v1")]
-    partial class v1
+    [Migration("20260620004807_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,19 +38,13 @@ namespace Lod.LlmGateway.Gateway.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
-                    b.Property<int>("CloudFallbackModelRequestCount")
-                        .HasColumnType("int");
-
                     b.Property<DateOnly>("DayUtc")
                         .HasColumnType("date");
 
                     b.Property<int>("FailedRequestCount")
                         .HasColumnType("int");
 
-                    b.Property<int>("InitialModelRequestCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LocalFallbackModelRequestCount")
+                    b.Property<int>("FailoverRequestCount")
                         .HasColumnType("int");
 
                     b.Property<double?>("NonStreamAverageTokensPerSecond")
@@ -78,6 +72,9 @@ namespace Lod.LlmGateway.Gateway.Migrations
                         .HasColumnType("decimal(18,8)");
 
                     b.Property<int>("NonStreamTotalTokens")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PrimaryProviderRequestCount")
                         .HasColumnType("int");
 
                     b.Property<int>("RequestCount")
@@ -172,19 +169,6 @@ namespace Lod.LlmGateway.Gateway.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
-                    b.Property<string>("CloudFallbackAttemptsJson")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CloudFallbackTierName")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<bool>("CloudFallbackUsed")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("CloudFallbackWinnerIndex")
-                        .HasColumnType("int");
-
                     b.Property<string>("Endpoint")
                         .IsRequired()
                         .HasMaxLength(128)
@@ -192,6 +176,9 @@ namespace Lod.LlmGateway.Gateway.Migrations
 
                     b.Property<string>("Error")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("FailoverUsed")
+                        .HasColumnType("bit");
 
                     b.Property<string>("GatewayRequestId")
                         .IsRequired()
@@ -201,12 +188,15 @@ namespace Lod.LlmGateway.Gateway.Migrations
                     b.Property<int>("HttpStatusCode")
                         .HasColumnType("int");
 
-                    b.Property<bool>("LocalModelFallbackUsed")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Provider")
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ProviderAttemptsJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ProviderIndex")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("RequestReceivedUtc")
                         .HasColumnType("datetimeoffset");

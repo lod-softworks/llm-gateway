@@ -59,8 +59,8 @@ public class IndexModel(
                 record.ResponseSentUtc,
                 record.RequestSentUtc,
                 record.ResponseModel,
-                record.CloudFallbackWinnerIndex,
-                record.CloudFallbackAttemptsJson,
+                record.ProviderIndex,
+                record.ProviderAttemptsJson,
                 record.HttpStatusCode,
                 record.Error));
         }
@@ -202,9 +202,9 @@ public class IndexModel(
         List<string> winningAttemptLabels = [];
         foreach (ChatCompletionRequestSnapshot snapshot in snapshots)
         {
-            if (!string.IsNullOrWhiteSpace(snapshot.CloudFallbackAttemptsJson) && snapshot.CloudFallbackWinnerIndex.HasValue)
+            if (!string.IsNullOrWhiteSpace(snapshot.ProviderAttemptsJson) && snapshot.ProviderIndex.HasValue)
             {
-                winningAttemptLabels.Add(GetAttemptLabel(snapshot.CloudFallbackWinnerIndex.Value + 1));
+                winningAttemptLabels.Add(GetAttemptLabel(snapshot.ProviderIndex.Value + 1));
             }
         }
 
@@ -411,8 +411,8 @@ public class IndexModel(
         DateTimeOffset ResponseSentUtc,
         DateTimeOffset? RequestSentUtc,
         string? ResponseModel,
-        int? CloudFallbackWinnerIndex,
-        string? CloudFallbackAttemptsJson,
+        int? ProviderIndex,
+        string? ProviderAttemptsJson,
         int HttpStatusCode,
         string? Error);
 

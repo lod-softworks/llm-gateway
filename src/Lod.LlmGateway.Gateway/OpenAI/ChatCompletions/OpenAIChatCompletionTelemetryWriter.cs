@@ -122,11 +122,9 @@ public sealed class OpenAIChatCompletionTelemetryWriter(
             RequestedModel = requestedModel,
             ResponseModel = resolvedResponseModel,
             Provider = telemetry.ProviderChainTelemetry?.ProviderName,
-            LocalModelFallbackUsed = DetermineLocalFallbackUsage(telemetry.FailoverUsed, resolvedResponseModel, telemetry.ConfiguredModel),
-            CloudFallbackUsed = telemetry.FailoverUsed,
-            CloudFallbackTierName = telemetry.ProviderChainTelemetry?.ProviderName,
-            CloudFallbackWinnerIndex = telemetry.ProviderChainTelemetry?.WinnerIndex,
-            CloudFallbackAttemptsJson = telemetry.ProviderChainTelemetry?.AttemptsJson,
+            ProviderIndex = telemetry.ProviderChainTelemetry?.WinnerIndex,
+            ProviderAttemptsJson = telemetry.ProviderChainTelemetry?.AttemptsJson,
+            FailoverUsed = telemetry.FailoverUsed,
             HttpStatusCode = telemetry.HttpStatusCode,
             Error = telemetry.Error
         };
@@ -146,16 +144,6 @@ public sealed class OpenAIChatCompletionTelemetryWriter(
         {
             logger.LogError(exception, "Failed to persist chat completion telemetry for request {RequestId}.", gatewayRequestId);
         }
-    }
-
-    static bool DetermineLocalFallbackUsage(bool failoverUsed, string? responseModel, string? configuredModel)
-    {
-        if (failoverUsed || string.IsNullOrWhiteSpace(responseModel) || string.IsNullOrWhiteSpace(configuredModel))
-        {
-            return false;
-        }
-
-        return !string.Equals(responseModel, configuredModel, StringComparison.OrdinalIgnoreCase);
     }
 
     static double? GetElapsedSeconds(DateTimeOffset? start, DateTimeOffset? end)

@@ -50,6 +50,10 @@ public sealed class OpenAIChatCompletionTelemetryWriterTests
 
         OpenAIChatCompletionRequestRecord record = await dbContext.OpenAIChatCompletionRequest.SingleAsync();
         Assert.Equal("qwen3.6", record.ResponseModel);
+        Assert.Equal("Api", record.Provider);
+        Assert.Equal(0, record.ProviderIndex);
+        Assert.False(record.FailoverUsed);
+        Assert.NotNull(record.ProviderAttemptsJson);
     }
 
     [Fact]
@@ -139,5 +143,9 @@ public sealed class OpenAIChatCompletionTelemetryWriterTests
 
         OpenAIChatCompletionRequestRecord record = await dbContext.OpenAIChatCompletionRequest.SingleAsync();
         Assert.Equal("api-returned-model", record.ResponseModel);
+        Assert.Equal("OpenAI", record.Provider);
+        Assert.Equal(2, record.ProviderIndex);
+        Assert.True(record.FailoverUsed);
+        Assert.NotNull(record.ProviderAttemptsJson);
     }
 }

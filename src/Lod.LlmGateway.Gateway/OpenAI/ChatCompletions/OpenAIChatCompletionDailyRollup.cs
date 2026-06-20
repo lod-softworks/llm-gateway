@@ -22,11 +22,9 @@ public sealed record class OpenAIChatCompletionDailyRollup
 
     public int StreamRequestCount { get; init; }
 
-    public int InitialModelRequestCount { get; init; }
+    public int PrimaryProviderRequestCount { get; init; }
 
-    public int LocalFallbackModelRequestCount { get; init; }
-
-    public int CloudFallbackModelRequestCount { get; init; }
+    public int FailoverRequestCount { get; init; }
 
     public int FailedRequestCount { get; init; }
 

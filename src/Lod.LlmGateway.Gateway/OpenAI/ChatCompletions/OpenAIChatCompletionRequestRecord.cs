@@ -39,16 +39,11 @@ public sealed record class OpenAIChatCompletionRequestRecord
     [MaxLength(128)]
     public string? Provider { get; init; }
 
-    public bool LocalModelFallbackUsed { get; init; }
+    public int? ProviderIndex { get; init; }
 
-    public bool CloudFallbackUsed { get; init; }
+    public string? ProviderAttemptsJson { get; init; }
 
-    [MaxLength(128)]
-    public string? CloudFallbackTierName { get; init; }
-
-    public int? CloudFallbackWinnerIndex { get; init; }
-
-    public string? CloudFallbackAttemptsJson { get; init; }
+    public bool FailoverUsed { get; init; }
 
     public int HttpStatusCode { get; init; }
 
