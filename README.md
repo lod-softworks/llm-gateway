@@ -109,6 +109,12 @@ Use standard ASP.NET Core configuration key mapping for Key Vault secret names.
 
 Set `Database:Provider` to `SqlServer` or `Sqlite`, and set `ConnectionStrings:Gateway` to the corresponding connection string.
 
+## Azure App Service
+
+The root `.deployment` file directs Kudu to the deployable API project under `src`.
+
+Configure the App Service runtime stack for .NET 10. For source ZIP deployments, set `SCM_DO_BUILD_DURING_DEPLOYMENT=true`; pre-published ZIP deployments should leave remote build disabled.
+
 ## Documentation
 
 See [REQUIREMENTS.md](REQUIREMENTS.md) for product behavior, constraints, and acceptance criteria.
