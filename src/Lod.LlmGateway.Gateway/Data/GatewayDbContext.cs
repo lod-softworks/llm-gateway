@@ -1,4 +1,4 @@
-using Lod.LlmGateway.Gateway.OpenAI.ChatCompletions;
+using Lod.LlmGateway.Gateway.Data.OpenAI.ChatCompletions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lod.LlmGateway.Gateway.Data;

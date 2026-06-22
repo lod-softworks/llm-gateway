@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Product>Lod LLM Gateway</Product>
     <Description>ASP.NET Core routing and failover API for OpenAI-compatible chat completion providers.</Description>
-    <UserSecretsId>0f5ad882-7ce4-490a-8e7e-44c2d3bdf7a5</UserSecretsId>
+    <UserSecretsId>dotnet-Lod.LlmGateway.Host-12f22139-d8ec-4bec-acac-b1a7ee7d086e</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

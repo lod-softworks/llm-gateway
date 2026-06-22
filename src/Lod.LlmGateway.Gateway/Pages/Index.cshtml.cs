@@ -1,4 +1,5 @@
-using Lod.LlmGateway.Gateway.OpenAI.ChatCompletions;
+using Lod.LlmGateway.Gateway.Data.OpenAI.ChatCompletions;
+using Lod.LlmGateway.Gateway.Models.OpenAI.ChatCompletions;
 using Lod.LlmGateway.Gateway.Api;
 using Lod.LlmGateway.Gateway.Data;
 using Microsoft.AspNetCore.Mvc.RazorPages;

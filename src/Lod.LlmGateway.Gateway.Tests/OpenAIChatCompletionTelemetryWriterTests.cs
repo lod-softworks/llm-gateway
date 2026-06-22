@@ -1,4 +1,6 @@
-using Lod.LlmGateway.Gateway.OpenAI.ChatCompletions;
+using Lod.LlmGateway.Gateway.Data.OpenAI.ChatCompletions;
+using Lod.LlmGateway.Gateway.Models.OpenAI.ChatCompletions;
+using Lod.LlmGateway.Gateway.Services.OpenAI.ChatCompletions;
 using Lod.LlmGateway.Gateway.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,5 @@
-using Lod.LlmGateway.Gateway.OpenAI.ChatCompletions;
+using Lod.LlmGateway.Gateway.Models.OpenAI.ChatCompletions;
+using Lod.LlmGateway.Gateway.Services.OpenAI.ChatCompletions;
 
 namespace Lod.LlmGateway.Gateway.Tests;
 

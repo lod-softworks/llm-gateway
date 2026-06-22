@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Lod.LlmGateway.Gateway.OpenAI.ChatCompletions;
+using Lod.LlmGateway.Gateway.Models.OpenAI.ChatCompletions;
+using Lod.LlmGateway.Gateway.Services.OpenAI.ChatCompletions;
 using Xunit;
 
 namespace Lod.LlmGateway.Gateway.Tests;

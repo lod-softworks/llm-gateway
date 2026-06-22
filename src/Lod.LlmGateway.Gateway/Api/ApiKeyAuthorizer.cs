@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace Lod.LlmGateway.Gateway.Api;
 
@@ -43,9 +44,9 @@ public sealed class ApiKeyAuthorizer(IOptionsMonitor<ApiKeyOptions> options)
 
     public static string? GetApiKey(HttpContext httpContext)
     {
-        if (httpContext.Request.Headers.TryGetValue("X-Api-Key", out var values))
+        if (httpContext.Request.Headers.TryGetValue("X-Api-Key", out StringValues values))
         {
-            foreach (var value in values)
+            foreach (string? value in values)
             {
                 if (!string.IsNullOrWhiteSpace(value))
                 {
@@ -54,9 +55,9 @@ public sealed class ApiKeyAuthorizer(IOptionsMonitor<ApiKeyOptions> options)
             }
         }
 
-        if (httpContext.Request.Headers.TryGetValue("AuthToken", out var authTokenValues))
+        if (httpContext.Request.Headers.TryGetValue("AuthToken", out StringValues authTokenValues))
         {
-            foreach (var value in authTokenValues)
+            foreach (string? value in authTokenValues)
             {
                 if (!string.IsNullOrWhiteSpace(value))
                 {
@@ -65,7 +66,7 @@ public sealed class ApiKeyAuthorizer(IOptionsMonitor<ApiKeyOptions> options)
             }
         }
 
-        if (httpContext.Request.Headers.TryGetValue("Authorization", out var authorizationValues))
+        if (httpContext.Request.Headers.TryGetValue("Authorization", out StringValues authorizationValues))
         {
             foreach (string? value in authorizationValues)
             {
@@ -77,9 +78,9 @@ public sealed class ApiKeyAuthorizer(IOptionsMonitor<ApiKeyOptions> options)
             }
         }
 
-        if (httpContext.Request.Query.TryGetValue("apiKey", out var queryValues))
+        if (httpContext.Request.Query.TryGetValue("apiKey", out StringValues queryValues))
         {
-            foreach (var value in queryValues)
+            foreach (string? value in queryValues)
             {
                 if (!string.IsNullOrWhiteSpace(value))
                 {

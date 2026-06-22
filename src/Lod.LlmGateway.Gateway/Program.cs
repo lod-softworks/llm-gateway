@@ -1,26 +1,21 @@
-using Lod.LlmGateway.Gateway.OpenAI.ChatCompletions;
 using Lod.LlmGateway.Gateway.Api;
 using Lod.LlmGateway.Gateway.Data;
-using Azure.Extensions.AspNetCore.Configuration.Secrets;
-using Azure.Identity;
+using Lod.LlmGateway.Gateway.Handlers.OpenAI.ChatCompletions;
+using Lod.LlmGateway.Gateway.Models.OpenAI.ChatCompletions;
+using Lod.LlmGateway.Gateway.Services.OpenAI.ChatCompletions;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-string? keyVaultUri = builder.Configuration["AzureKeyVault:VaultUri"];
-if (!string.IsNullOrWhiteSpace(keyVaultUri))
-{
-    builder.Configuration.AddAzureKeyVault(
-        new Uri(keyVaultUri),
-        new DefaultAzureCredential(),
-        new AzureKeyVaultConfigurationOptions());
-}
+builder.Configuration.AddAzureKeyVault();
 
 builder.Services.Configure<Lod.LlmGateway.Gateway.Api.ApiKeyOptions>(builder.Configuration.GetSection("ApiKeys"));
 builder.Services.Configure<OpenAIChatCompletionOptions>(builder.Configuration.GetSection("OpenAIChatCompletions"));
 builder.Services.AddHttpClient(OpenAIChatCompletionHttpExecutor.HttpClientName, client =>
-    client.Timeout = Timeout.InfiniteTimeSpan);
+{
+    client.Timeout = Timeout.InfiniteTimeSpan;
+});
 builder.Services.AddSingleton<OpenAIChatCompletionHttpExecutor>();
 builder.Services.AddSingleton<OpenAIModelListHttpExecutor>();
 builder.Services.AddSingleton<OpenAIChatCompletionProviderChainService>();
@@ -36,14 +31,16 @@ builder.Services.AddDbContext<GatewayDbContext>(options =>
     }
     else if (databaseProvider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
     {
-        options.UseSqlServer(connectionString);
+        options.UseSqlServer(connectionString, c =>
+        {
+            c.MigrationsHistoryTable("__EFMigrationsHistory", "llm_gateway");
+        });
     }
     else
     {
         throw new InvalidOperationException($"Unsupported database provider '{databaseProvider}'. Supported values are 'SqlServer' and 'Sqlite'.");
     }
 });
-builder.Services.AddScoped<DbInitializer>();
 builder.Services.AddScoped<OpenAIChatCompletionTelemetryWriter>();
 builder.Services.AddSingleton<ApiKeyAuthorizer>();
 builder.Services.AddScoped<OpenAIChatCompletionHandler>();
@@ -53,7 +50,7 @@ builder.Services.AddHostedService<OpenAIChatCompletionDailyRollupWorker>();
 builder.Services.AddRazorPages();
 builder.Services.AddOpenApi();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.UseExceptionHandler(exceptionApp =>
 {
@@ -102,7 +99,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference(options =>
     {
-        options.WithTitle("Lod LLM Gateway");
+        options.WithTitle("LLM Gateway");
     });
 }
 
@@ -124,7 +121,7 @@ openAiGroup.MapPost("/chat/completions", async (HttpContext context, OpenAIChatC
 
                      Gateway note: additional request properties not listed in the OpenAPI contract are still accepted at runtime and passed through when serializing the outbound request.
                      """)
-    .Accepts<OpenAiChatCompletionApiContract>("application/json")
+    .Accepts<ChatCompletionRequest>("application/json")
     .Produces<ChatCompletionResponse>(StatusCodes.Status200OK, "application/json");
 
 openAiGroup.MapGet("/models", async (HttpContext context, OpenAIModelListHandler handler, CancellationToken cancellationToken) =>
@@ -137,8 +134,16 @@ openAiGroup.MapGet("/models", async (HttpContext context, OpenAIModelListHandler
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
-    DbInitializer initializer = scope.ServiceProvider.GetRequiredService<DbInitializer>();
-    await initializer.InitializeAsync(CancellationToken.None);
+    DbContext dbContext = scope.ServiceProvider.GetRequiredService<GatewayDbContext>();
+
+    if (dbContext.Database.IsSqlite())
+    {
+        await dbContext.Database.EnsureCreatedAsync();
+    }
+    else
+    {
+        await dbContext.Database.MigrateAsync();
+    }
 }
 
 await app.RunAsync();
