@@ -9,7 +9,6 @@ namespace Lod.LlmGateway.Gateway.Handlers.OpenAI.ChatCompletions;
 public sealed class OpenAIChatCompletionHandler(
     ILogger<OpenAIChatCompletionHandler> logger,
     OpenAIChatCompletionProviderChainService providerChain,
-    ApiKeyAuthorizer apiKeyAuthorizer,
     OpenAIChatCompletionTelemetryWriter telemetryWriter)
 {
     public async Task<IResult> HandleAsync(HttpContext httpContext, CancellationToken cancellationToken)
@@ -17,19 +16,7 @@ public sealed class OpenAIChatCompletionHandler(
         Guid requestId = Guid.NewGuid();
         DateTimeOffset requestReceivedUtc = DateTimeOffset.UtcNow;
 
-        if (!apiKeyAuthorizer.IsClientAuthorized(httpContext))
-        {
-            logger.LogWarning("Client request connection rejected: missing or invalid API key header. Client provided key '{Provided}' does not match configured key '{Configured}'.",
-                ApiKeyAuthorizer.ObfuscateKey(ApiKeyAuthorizer.GetApiKey(httpContext) ?? ""),
-                string.Join(", ", apiKeyAuthorizer.ClientObfuscatedKeys));
-
-            return GatewayResults.OpenAIError(
-                StatusCodes.Status401Unauthorized,
-                "Missing or invalid API key.",
-                type: "authentication_error");
-        }
-
-        string? clientName = apiKeyAuthorizer.GetAuthorizedClientName(httpContext);
+        string? clientName = httpContext.User.Identity?.Name;
 
         (ChatCompletionRequest? request, IResult? validationError) = await ValidateRequestAsync(httpContext, requestId, cancellationToken);
         if (validationError is not null)

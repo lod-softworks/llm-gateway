@@ -4,6 +4,7 @@ using Lod.LlmGateway.Gateway.Handlers.OpenAI.ChatCompletions;
 using Lod.LlmGateway.Gateway.Models.OpenAI.ChatCompletions;
 using Lod.LlmGateway.Gateway.Services.OpenAI.ChatCompletions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -47,8 +48,41 @@ builder.Services.AddScoped<OpenAIChatCompletionHandler>();
 builder.Services.AddScoped<OpenAIModelListHandler>();
 builder.Services.AddHostedService<OpenAIChatCompletionDailyRollupWorker>();
 
+builder.Services.AddAuthentication("ApiKey")
+    .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", null);
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("ApiKeyPolicy", policy =>
+    {
+        policy.AddAuthenticationSchemes("ApiKey");
+        policy.RequireAuthenticatedUser();
+    });
+
 builder.Services.AddRazorPages();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer(async (document, context, cancellationToken) =>
+    {
+        OpenApiSecurityScheme scheme = new()
+        {
+            Type = SecuritySchemeType.ApiKey,
+            Name = "X-Api-Key",
+            In = ParameterLocation.Header,
+            Description = "API key required to access the gateway",
+        };
+
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+        document.Components.SecuritySchemes.Add("ApiKey", scheme);
+
+        OpenApiSecurityRequirement requirement = new()
+        {
+            [new OpenApiSecuritySchemeReference("ApiKey", document)] = [],
+        };
+
+        document.Security ??= [];
+        document.Security.Add(requirement);
+    });
+});
 
 WebApplication app = builder.Build();
 
@@ -94,6 +128,9 @@ app.UseStatusCodePages(async statusContext =>
 });
 
 app.UseStaticFiles();
+
+app.UseAuthentication();
+app.UseAuthorization();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -106,11 +143,11 @@ if (app.Environment.IsDevelopment())
 app.MapRazorPages();
 
 RouteGroupBuilder openAiGroup = app.MapGroup("/v1")
+    .RequireAuthorization("ApiKeyPolicy")
     .WithTags("OpenAI");
 
 openAiGroup.MapPost("/chat/completions", async (HttpContext context, OpenAIChatCompletionHandler handler, CancellationToken cancellationToken) =>
         await handler.HandleAsync(context, cancellationToken))
-    .WithSummary("Chat with the LLM using OpenAI Chat Completions")
     .WithDescription("""
                      OpenAI-compatible chat completions endpoint. The gateway matches the requested model to an ordered list of configured OpenAI-compatible HTTP providers. A chain of all matching providers is run in order until a step succeeds.
 
@@ -126,7 +163,6 @@ openAiGroup.MapPost("/chat/completions", async (HttpContext context, OpenAIChatC
 
 openAiGroup.MapGet("/models", async (HttpContext context, OpenAIModelListHandler handler, CancellationToken cancellationToken) =>
         await handler.HandleAsync(context, cancellationToken))
-    .WithSummary("List available OpenAI models")
     .WithDescription("""
                     OpenAI-compatible model listing endpoint. The gateway queries configured OpenAI-compatible HTTP providers in order and returns the first successful `/v1/models` response.
                     """)

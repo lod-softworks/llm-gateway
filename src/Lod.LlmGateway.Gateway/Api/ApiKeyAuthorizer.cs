@@ -1,15 +1,15 @@
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Lod.LlmGateway.Gateway.Api;
 
 public sealed class ApiKeyAuthorizer(IOptionsMonitor<ApiKeyOptions> options)
 {
-    public IEnumerable<string> ClientObfuscatedKeys => options.CurrentValue.Clients.Values.Select(ObfuscateKey);
-
     public bool IsClientAuthorized(HttpContext httpContext)
     {
-        return options.CurrentValue.Clients.Any(kv => IsAuthorized(httpContext, kv.Value));
+        return GetAuthorizedClientName(httpContext) is not null;
     }
 
 
@@ -21,9 +21,17 @@ public sealed class ApiKeyAuthorizer(IOptionsMonitor<ApiKeyOptions> options)
             return null;
         }
 
+        byte[] apiKeyBytes = Encoding.UTF8.GetBytes(apiKey);
+
         foreach (KeyValuePair<string, string> client in options.CurrentValue.Clients)
         {
-            if (string.Equals(client.Value, apiKey, StringComparison.Ordinal))
+            if (string.IsNullOrWhiteSpace(client.Value))
+            {
+                continue;
+            }
+
+            byte[] clientKeyBytes = Encoding.UTF8.GetBytes(client.Value);
+            if (CryptographicOperations.FixedTimeEquals(apiKeyBytes, clientKeyBytes))
             {
                 return client.Key;
             }
@@ -109,8 +117,4 @@ public sealed class ApiKeyAuthorizer(IOptionsMonitor<ApiKeyOptions> options)
         ReadOnlySpan<char> remainder = span[(space + 1)..].Trim();
         return remainder.Length is 0 ? null : new string(remainder);
     }
-
-    static bool IsAuthorized(HttpContext httpContext, string? configuredKey) =>
-        string.IsNullOrWhiteSpace(configuredKey) ||
-        string.Equals(GetApiKey(httpContext), configuredKey, StringComparison.Ordinal);
 }

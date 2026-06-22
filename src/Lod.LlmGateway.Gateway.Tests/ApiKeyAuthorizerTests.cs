@@ -31,6 +31,29 @@ public sealed class ApiKeyAuthorizerTests
         Assert.Equal("second", authorizer.GetAuthorizedClientName(context));
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    public void Authorization_RejectsEmptyConfiguredKeys(string? emptyConfiguredKey)
+    {
+        MutableOptionsMonitor<ApiKeyOptions> options = new(new ApiKeyOptions
+        {
+            Clients = new Dictionary<string, string> { ["first"] = emptyConfiguredKey! }
+        });
+        ApiKeyAuthorizer authorizer = new(options);
+        
+        DefaultHttpContext context = new();
+        context.Request.Headers["X-Api-Key"] = "";
+        Assert.False(authorizer.IsClientAuthorized(context));
+
+        context.Request.Headers["X-Api-Key"] = "some-key";
+        Assert.False(authorizer.IsClientAuthorized(context));
+
+        DefaultHttpContext contextNull = new();
+        Assert.False(authorizer.IsClientAuthorized(contextNull));
+    }
+
     sealed class MutableOptionsMonitor<TOptions>(TOptions currentValue) : IOptionsMonitor<TOptions>
     {
         public TOptions CurrentValue { get; set; } = currentValue;

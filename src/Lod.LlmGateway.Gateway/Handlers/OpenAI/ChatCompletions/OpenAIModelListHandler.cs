@@ -5,19 +5,10 @@ using Lod.LlmGateway.Gateway.Services.OpenAI.ChatCompletions;
 namespace Lod.LlmGateway.Gateway.Handlers.OpenAI.ChatCompletions;
 
 public sealed class OpenAIModelListHandler(
-    OpenAIModelListProviderService modelListProviderService,
-    ApiKeyAuthorizer apiKeyAuthorizer)
+    OpenAIModelListProviderService modelListProviderService)
 {
     public async Task<IResult> HandleAsync(HttpContext httpContext, CancellationToken cancellationToken)
     {
-        if (!apiKeyAuthorizer.IsClientAuthorized(httpContext))
-        {
-            return GatewayResults.OpenAIError(
-                StatusCodes.Status401Unauthorized,
-                "Missing or invalid API key.",
-                type: "authentication_error");
-        }
-
         try
         {
             OpenAIModelListResponse result = await modelListProviderService.ListModelsAsync(cancellationToken);
