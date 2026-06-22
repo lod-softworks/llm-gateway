@@ -23,7 +23,10 @@ src/
   Lod.LlmGateway.Gateway/
     Lod.LlmGateway.Gateway.csproj
     Api/                         Shared HTTP and authentication infrastructure
-    OpenAI/ChatCompletions/      OpenAI contracts, routing, handlers, and telemetry
+    Data/                        Database context, migrations, and entities (grouped by provider)
+    Handlers/                    API endpoint request handlers (grouped by provider)
+    Models/                      Request/response contracts and configurations
+    Services/                    Internal business logic and HTTP executors (grouped by provider)
   Lod.LlmGateway.Gateway.Tests/
     Lod.LlmGateway.Gateway.Tests.csproj
 ```

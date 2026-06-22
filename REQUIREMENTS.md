@@ -137,9 +137,12 @@ The solution contains:
 1. `src/Lod.LlmGateway.Gateway`: deployable ASP.NET Core API.
 2. `src/Lod.LlmGateway.Gateway.Tests`: automated tests.
 
-Provider-owned models and services are organized under:
+Provider-owned databases, handlers, services, and models are organized into functional layers:
 
-- `OpenAI/ChatCompletions`
+- `src/Lod.LlmGateway.Gateway/Data`: Database context, migrations, and entities (sub-grouped by provider/endpoint).
+- `src/Lod.LlmGateway.Gateway/Handlers`: API endpoint request handlers (sub-grouped by provider/endpoint).
+- `src/Lod.LlmGateway.Gateway/Models`: Request/response contracts and configuration mappings.
+- `src/Lod.LlmGateway.Gateway/Services`: Internal services and HTTP executors (sub-grouped by provider/endpoint).
 
 There is no separate abstractions project.
 
