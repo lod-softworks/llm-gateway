@@ -121,3 +121,10 @@ Configure the App Service runtime stack for .NET 10. For source ZIP deployments,
 ## Documentation
 
 See [REQUIREMENTS.md](REQUIREMENTS.md) for product behavior, constraints, and acceptance criteria.
+
+## License
+
+This project is licensed under the Apache License, Version 2.0. See the [LICENSE](LICENSE) file for details.
+
+The "Lod Softworks" name, logo, icons, and related brand assets are copyrighted and trademarked property of Lod Softworks LLC, and are **not** licensed under the open-source license. See [TRADEMARK.md](TRADEMARK.md) for branding guidelines.
+
