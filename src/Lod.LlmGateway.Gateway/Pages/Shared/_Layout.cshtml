@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LLM Gateway</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --lod-bg-dark: #1a1a2e;
+            --lod-navbar-dark: #16213e;
+            --lod-text-muted: #6c757d;
+            --lod-chart-empty: #e9ecef;
+            --lod-chart-color-1: #0d6efd;
+            --lod-chart-color-2: #dc3545;
+            --lod-chart-color-3: #ffc107;
+            --lod-chart-color-4: #20c997;
+            --lod-chart-color-5: #6f42c1;
+            --lod-chart-color-6: #0dcaf0;
+            --lod-chart-color-7: #fd7e14;
+            --lod-chart-color-8: #198754;
+            --lod-chart-color-9: #6610f2;
+            --lod-chart-color-10: #adb5bd;
+        }
+
+
+        [data-bs-theme="dark"] {
+            --bs-body-bg: var(--lod-bg-dark);
+            --lod-chart-empty: #343a40;
+            --lod-chart-color-1: #6ea8fe;
+            --lod-chart-color-2: #ea868f;
+            --lod-chart-color-3: #ffda6a;
+            --lod-chart-color-4: #79dfc1;
+            --lod-chart-color-5: #b197fc;
+            --lod-chart-color-6: #6edff6;
+            --lod-chart-color-7: #feb272;
+            --lod-chart-color-8: #75b798;
+            --lod-chart-color-9: #a370f7;
+            --lod-chart-color-10: #ced4da;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+        }
+
+        footer a {
+            color: var(--lod-text-muted);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #0d6efd;
+        }
+
+        #theme-toggle {
+            color: inherit;
+        }
+
+        [data-bs-theme="light"] #theme-toggle {
+            color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar navbar-expand-md navbar-dark" style="background-color: var(--lod-navbar-dark);">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="~/">
+                <img src="~/images/lod-softworks-32x106.png" alt="Lod Softworks" height="32" />
+                <span class="ms-2">LLM Gateway</span>
+            </a>
+            <button id="theme-toggle"
+                    type="button"
+                    class="btn btn-sm d-inline-flex align-items-center"
+                    aria-label="Toggle dark mode"
+                    aria-pressed="false"
+                    title="Toggle dark mode">
+                <i id="theme-toggle-icon" class="bi bi-moon-stars" aria-hidden="true"></i>
+            </button>
+        </div>
+    </header>
+    <main class="container py-4">
+        @RenderBody()
+    </main>
+    <footer class="border-top py-3 mt-auto">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center small text-muted">
+            <span>© @DateTime.UtcNow.Year Lod Softworks LLC</span>
+            <span>
+                <a href="https://lodsoftworks.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+                <span class="mx-2">·</span>
+                <a href="https://lodsoftworks.com" target="_blank" rel="noopener">Terms</a>
+            </span>
+        </div>
+    </footer>
+    <script>
+        (() => {
+            const storageKey = "lod.theme";
+            const darkTheme = "dark";
+            const lightTheme = "light";
+
+            const getSystemTheme = () => window.matchMedia("(prefers-color-scheme: dark)").matches ? darkTheme : lightTheme;
+
+            const getPreferredTheme = () => {
+                const storedTheme = localStorage.getItem(storageKey);
+                if (storedTheme === darkTheme || storedTheme === lightTheme) {
+                    return storedTheme;
+                }
+
+                return getSystemTheme();
+            };
+
+            const setTheme = (theme) => {
+                document.documentElement.setAttribute("data-bs-theme", theme);
+            };
+
+            const updateToggleState = (isDark) => {
+                const buttonElement = document.getElementById("theme-toggle");
+                const iconElement = document.getElementById("theme-toggle-icon");
+                if (!buttonElement || !iconElement) {
+                    return;
+                }
+
+                buttonElement.setAttribute("aria-pressed", isDark ? "true" : "false");
+                buttonElement.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+                iconElement.className = isDark ? "bi bi-sun" : "bi bi-moon-stars";
+            };
+
+            const initializeTheme = () => {
+                const initialTheme = getPreferredTheme();
+                setTheme(initialTheme);
+                updateToggleState(initialTheme === darkTheme);
+            };
+
+            document.addEventListener("DOMContentLoaded", () => {
+                initializeTheme();
+
+                const buttonElement = document.getElementById("theme-toggle");
+                if (!buttonElement) {
+                    return;
+                }
+
+                buttonElement.addEventListener("click", () => {
+                    const activeTheme = document.documentElement.getAttribute("data-bs-theme") === darkTheme ? darkTheme : lightTheme;
+                    const nextTheme = activeTheme === darkTheme ? lightTheme : darkTheme;
+                    setTheme(nextTheme);
+                    localStorage.setItem(storageKey, nextTheme);
+                    updateToggleState(nextTheme === darkTheme);
+                });
+            });
+
+            window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+                if (localStorage.getItem(storageKey) === null) {
+                    const theme = getSystemTheme();
+                    setTheme(theme);
+                    updateToggleState(theme === darkTheme);
+                }
+            });
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

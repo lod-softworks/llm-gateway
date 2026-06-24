@@ -1,0 +1,36 @@
+name: PR build and test
+run-name: Code review of ${{ github.head_ref || github.ref_name }}
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      NUGET_USERNAME: ${{ secrets.NUGET_USERNAME }}
+      NUGET_PASSWORD: ${{ secrets.NUGET_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Restore with dotnet
+        run: dotnet restore
+
+      - name: Build with dotnet
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test with dotnet
+        run: dotnet test --configuration Release --no-build --no-restore

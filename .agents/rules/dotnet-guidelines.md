@@ -2,7 +2,8 @@
 
 ## Repository Structure
 
-- All source files including dotnet solution files should be in a `src` directory at the repository root.
+- All source projects should be in a `src` directory at the repository root.
+- Solution files and repository-wide .NET configuration files should be at the repository root.
 - README files should be maintained at the repository root and not within project directories.
 
 ## Framework and Language Versions

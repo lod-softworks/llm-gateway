@@ -1,0 +1,326 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+@{
+    string GetWindowIcon(string label) => label == "All time"
+        ? "bi bi-calendar3"
+        : "bi bi-clock-history";
+
+    IndexModel.BranchMetricWindow[] MetricWindows() => new[] { Model.AllTimeMetrics, Model.Last24HoursMetrics };
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-10">
+        <div class="row g-4 justify-content-center">
+            <div class="col-12 col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center py-5">
+                        <h5 class="card-title text-muted mb-3 d-flex justify-content-center align-items-center gap-2">
+                            <i class="bi bi-cloud" aria-hidden="true"></i>
+                            <span>Configured providers</span>
+                        </h5>
+                        <p class="display-4 fw-bold mb-0">@Model.ConfiguredProviderCount</p>
+                        <p class="small text-muted mt-2 mb-0">Ordered routing targets</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (Model.IsDevelopment)
+        {
+            <div class="text-center mt-4">
+                <a href="~/scalar" class="btn btn-outline-primary">Open API docs (Scalar)</a>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-12 col-xl-10">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-3 d-flex justify-content-center align-items-center gap-2">
+                    <span>Top Models</span>
+                    <button type="button"
+                            class="btn btn-link btn-sm p-0 text-muted"
+                            data-bs-toggle="modal"
+                            data-bs-target="#topModelsInfoModal"
+                            aria-label="Explain Top Models"
+                            title="How Top Models is calculated">
+                        <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    </button>
+                </h5>
+                <div class="row g-4">
+                    @foreach (IndexModel.BranchMetricWindow window in MetricWindows())
+                    {
+                        <div class="col-12 col-lg-6">
+                            <h6 class="mb-3 text-center d-flex justify-content-center align-items-center gap-2">
+                                <i class="@(GetWindowIcon(window.Label))" aria-hidden="true"></i>
+                                <span>@window.Label</span>
+                            </h6>
+                            <div class="row g-3">
+                                @foreach (IndexModel.BranchMetrics branch in new[] { window.NonStream, window.Stream })
+                                {
+                                    <div class="col-12 col-md-6">
+                                        <div class="border rounded p-3 h-100">
+                                            <h6 class="small text-muted text-center d-flex justify-content-center align-items-center gap-2">
+                                                <i class="@branch.Icon" aria-hidden="true"></i>
+                                                <span>@branch.Label</span>
+                                            </h6>
+                                            @if (!branch.ModelPieChart.HasData)
+                                            {
+                                                <p class="text-muted mb-0">No model usage data yet.</p>
+                                            }
+                                            else
+                                            {
+                                                <div class="d-flex flex-column align-items-center gap-3">
+                                                    <div class="rounded-circle border flex-shrink-0"
+                                                         style="width: 150px; height: 150px; background: conic-gradient(@branch.ModelPieChart.Gradient);"
+                                                         role="img"
+                                                         aria-label="@window.Label @branch.Label model distribution pie chart">
+                                                    </div>
+                                                    <div class="w-100">
+                                                        @foreach (IndexModel.PieChartSegment segment in branch.ModelPieChart.Segments)
+                                                        {
+                                                            <div class="d-flex justify-content-between align-items-center mb-1 small">
+                                                                <span class="text-break me-2">
+                                                                    <span class="d-inline-block rounded-circle me-2 align-middle"
+                                                                          style="width: 10px; height: 10px; background-color: @segment.Color;"></span>
+                                                                    @segment.Label
+                                                                </span>
+                                                                <span class="text-nowrap">@segment.Percentage.ToString("0.0")%</span>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-12 col-xl-10">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-3 d-flex justify-content-center align-items-center gap-2">
+                    <span>Failover Rate</span>
+                    <button type="button"
+                            class="btn btn-link btn-sm p-0 text-muted"
+                            data-bs-toggle="modal"
+                            data-bs-target="#failoverRateInfoModal"
+                            aria-label="Explain Failover Rate"
+                            title="How Failover Rate is calculated">
+                        <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    </button>
+                </h5>
+                <div class="row g-4">
+                    @foreach (IndexModel.BranchMetricWindow window in MetricWindows())
+                    {
+                        <div class="col-12 col-lg-6">
+                            <h6 class="mb-3 text-center d-flex justify-content-center align-items-center gap-2"><i class="@(GetWindowIcon(window.Label))" aria-hidden="true"></i><span>@window.Label</span></h6>
+                            <div class="row g-3">
+                                @foreach (IndexModel.BranchMetrics branch in new[] { window.NonStream, window.Stream })
+                                {
+                                    <div class="col-12 col-md-6">
+                                        <div class="border rounded p-3 h-100">
+                                            <h6 class="small text-muted text-center d-flex justify-content-center align-items-center gap-2"><i class="@branch.Icon" aria-hidden="true"></i><span>@branch.Label</span></h6>
+                                            @if (!branch.FailoverRatePieChart.HasData)
+                                            {
+                                                <p class="text-muted mb-0">No failover success data yet.</p>
+                                            }
+                                            else
+                                            {
+                                                @foreach (IndexModel.PieChartSegment segment in branch.FailoverRatePieChart.Segments)
+                                                {
+                                                    <div class="d-flex justify-content-between align-items-center mb-1 small">
+                                                        <span class="text-break me-2">
+                                                            <span class="d-inline-block rounded-circle me-2 align-middle" style="width: 10px; height: 10px; background-color: @segment.Color;"></span>
+                                                            @segment.Label
+                                                        </span>
+                                                        <span class="text-nowrap">@segment.Percentage.ToString("0.0")%</span>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-12 col-xl-10">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-3">Average Tokens / Second by Model</h5>
+                <div class="row g-4">
+                    @foreach (IndexModel.BranchMetricWindow window in MetricWindows())
+                    {
+                        <div class="col-12 col-lg-6">
+                            <h6 class="mb-3 text-center d-flex justify-content-center align-items-center gap-2"><i class="@(GetWindowIcon(window.Label))" aria-hidden="true"></i><span>@window.Label</span></h6>
+                            <div class="row g-3">
+                                @foreach (IndexModel.BranchMetrics branch in new[] { window.NonStream, window.Stream })
+                                {
+                                    <div class="col-12 col-md-6">
+                                        <div class="border rounded p-3 h-100">
+                                            <h6 class="small text-muted text-center d-flex justify-content-center align-items-center gap-2"><i class="@branch.Icon" aria-hidden="true"></i><span>@branch.Label</span></h6>
+                                            @if (branch.AverageTokensPerSecond.Count == 0)
+                                            {
+                                                <p class="text-muted mb-0">No token throughput data yet.</p>
+                                            }
+                                            else
+                                            {
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm align-middle mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">Model</th>
+                                                                <th scope="col" class="text-end">Avg tokens/sec</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (IndexModel.ModelTokenRate rate in branch.AverageTokensPerSecond)
+                                                            {
+                                                                <tr>
+                                                                    <td class="text-break">@rate.Model</td>
+                                                                    <td class="text-end">@rate.AverageTokensPerSecond.ToString("0.00")</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-4 mb-4">
+    <div class="col-12 col-xl-10">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-3 d-flex justify-content-center align-items-center gap-2">
+                    <span>Failed Requests</span>
+                    <button type="button"
+                            class="btn btn-link btn-sm p-0 text-muted"
+                            data-bs-toggle="modal"
+                            data-bs-target="#failedRequestsInfoModal"
+                            aria-label="Explain Failed Requests"
+                            title="How Failed Requests is calculated">
+                        <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    </button>
+                </h5>
+                <div class="row g-4">
+                    @foreach (IndexModel.BranchMetricWindow window in MetricWindows())
+                    {
+                        <div class="col-12 col-lg-6">
+                            <h6 class="mb-2 text-center d-flex justify-content-center align-items-center gap-2"><i class="@(GetWindowIcon(window.Label))" aria-hidden="true"></i><span>@window.Label</span></h6>
+                            <div class="row g-3">
+                                @foreach (IndexModel.BranchMetrics branch in new[] { window.NonStream, window.Stream })
+                                {
+                                    <div class="col-12 col-md-6">
+                                        <div class="border rounded p-3 h-100">
+                                            <h6 class="small text-muted text-center d-flex justify-content-center align-items-center gap-2"><i class="@branch.Icon" aria-hidden="true"></i><span>@branch.Label</span></h6>
+                                            @if (!branch.FailedRequestRate.HasData)
+                                            {
+                                                <p class="text-muted mb-0">No request data yet.</p>
+                                            }
+                                            else
+                                            {
+                                                <div class="d-flex align-items-end justify-content-between">
+                                                    <div>
+                                                        <div class="small text-muted">Failed request rate</div>
+                                                        <div class="fs-3 fw-bold">@branch.FailedRequestRate.Percentage.ToString("0.00")%</div>
+                                                    </div>
+                                                    <div class="small text-muted text-end">
+                                                        @branch.FailedRequestRate.FailedRequestCount of @branch.FailedRequestRate.TotalRequestCount requests
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="topModelsInfoModal" tabindex="-1" aria-labelledby="topModelsInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="topModelsInfoModalLabel">How Top Models works</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="mb-0">
+                    <li>Shows successful requests that recorded a response model.</li>
+                    <li>Non-streamed and streamed requests are charted separately so branch-specific telemetry is not mixed.</li>
+                    <li>The Last 24 view uses responses completed in the trailing 24-hour window.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="failoverRateInfoModal" tabindex="-1" aria-labelledby="failoverRateInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="failoverRateInfoModalLabel">How Failover Rate works</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="mb-0">
+                    <li>Shows which provider attempt ultimately won for requests with provider-chain telemetry.</li>
+                    <li>Non-streamed and streamed requests are shown side by side.</li>
+                    <li>Only requests with a successful winning attempt are included; fully failed requests do not have a winner and are excluded.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="failedRequestsInfoModal" tabindex="-1" aria-labelledby="failedRequestsInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="failedRequestsInfoModalLabel">How Failed Requests works</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="mb-0">
+                    <li>Uses all recorded requests in the selected time window.</li>
+                    <li>A request is failed when it records an HTTP status code of 400 or higher, or when telemetry stores an error message.</li>
+                    <li>Non-streamed and streamed requests are counted separately to keep branch-specific failures visible.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
